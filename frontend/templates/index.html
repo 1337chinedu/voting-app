@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Vote!</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 60px;
+        background: #f5f5f5;
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 40px;
+      }
+      form {
+        display: inline-block;
+      }
+      button {
+        font-size: 1.4rem;
+        padding: 20px 40px;
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: white;
+      }
+      .cats {
+        background: #7c3aed;
+      }
+      .dogs {
+        background: #2563eb;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Cats vs Dogs</h1>
+    <p>Cast your vote:</p>
+    <form method="POST" action="/vote">
+      <button class="cats" name="vote" value="cats">Cats</button>
+      <button class="dogs" name="vote" value="dogs">Dogs</button>
+    </form>
+  </body>
+</html>
