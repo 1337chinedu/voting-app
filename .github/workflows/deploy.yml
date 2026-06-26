@@ -1,0 +1,41 @@
+name: Deploy Voting App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key.pem
+          chmod 600 ~/.ssh/deploy_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy code to EC2
+        run: |
+          rsync -avz --exclude='.git' --exclude='.env' \
+            -e "ssh -i ~/.ssh/deploy_key.pem" \
+            ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/voting-app/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key.pem \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
+            cd ~/voting-app
+            echo "DB_HOST=db" > .env
+            echo "DB_NAME=votes" >> .env
+            echo "DB_USER=postgres" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            docker compose down
+            docker compose up --build -d
+            docker compose ps
+          ENDSSH
